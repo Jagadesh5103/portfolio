@@ -28,19 +28,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-
     // Contact Form Handling
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
             
             // Show loading state
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
             submitBtn.disabled = true;
             
-            // Let FormSubmit handle the actual submission
-            // You can add success/error handling if needed
+            // Create a temporary form for submission
+            const formData = new FormData(this);
+            const tempForm = document.createElement('form');
+            tempForm.style.display = 'none';
+            tempForm.method = this.method;
+            tempForm.action = this.action;
+            
+            // Add all form data to the temporary form
+            formData.forEach((value, key) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                tempForm.appendChild(input);
+            });
+            
+            document.body.appendChild(tempForm);
+            tempForm.submit();
+            
+            // Fallback in case submission fails
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
         });
     }
     
